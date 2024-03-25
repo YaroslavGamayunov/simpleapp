@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:simpleapp/criteria_screen.dart';
 
 import 'option_button.dart';
+import 'option_combination.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,14 +44,32 @@ class _MainScreenState extends State<MainScreen> {
     'topToBottom',
     'rightToLeft'
   ];
+  final List<OptionCombination> _optionCombinations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (MapEntry<String, Color> colorEntry in _colorOptions.entries) {
+      for (String alert in _alertOptions) {
+        for (String transition in _transitionOptions) {
+          _optionCombinations.add(OptionCombination(
+              color: colorEntry.key, alert: alert, transition: transition));
+        }
+      }
+    }
+  }
 
   void _selectRandomOptions() {
+    if (_optionCombinations.isEmpty) {
+      return;
+    }
     setState(() {
-      _mainColor =
-          _colorOptions.keys.elementAt(Random().nextInt(_colorOptions.length));
-      _alertType = _alertOptions[Random().nextInt(_alertOptions.length)];
-      _transitionType =
-          _transitionOptions[Random().nextInt(_transitionOptions.length)];
+      int combinationsCount = _optionCombinations.length;
+      OptionCombination combination =
+          _optionCombinations.removeAt(Random().nextInt(combinationsCount));
+      _mainColor = combination.color;
+      _alertType = combination.alert;
+      _transitionType = combination.transition;
       _isOptionSelected = true;
     });
   }
@@ -168,7 +187,6 @@ class _MainScreenState extends State<MainScreen> {
                               begin = const Offset(1.0, 0.0);
                               end = Offset.zero;
                               break;
-
                           }
 
                           final tween = Tween(begin: begin, end: end);
